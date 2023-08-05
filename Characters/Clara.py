@@ -206,25 +206,25 @@ class ClaraCounterAttack:
                             self.Attacked = False
                             self.Object.Game.AppendBattleHistory(f"\n시간 : {self.Object.Game.CurrentTime}, 클라라 반격")
                             if Attacker in self.Object.Game.Enemys:
-                                self.Object.Game.ActiveTrigger('캐릭터추가공격발동시작', self.Object, Attacker, None, Except = self)
                                 neighboringTargets = self.Object.Game.GetNeighboringEnemy(Attacker)
+                                self.Object.Game.ActiveTrigger('캐릭터추가공격발동시작', self.Object, [Attacker]+neighboringTargets, None, Except = self)
                                 self.Object.Game.ApplyDamage(Attacker = self.Object, Target = Attacker, Element = self.Object.Element, DamageType = '추가공격', Toughness = 30, Multiplier = self.Object.TalentDMG, FlatDMG = 0, DamageName = f'{self.Object.Name}특성강화공격', Multiple = ( 1 + self.Object.UltimateMultiplier), Except = self)
                                 for neighboringTarget in neighboringTargets:
                                         self.Object.Game.ApplyDamage(Attacker = self.Object, Target = neighboringTarget, Element = self.Object.Element, DamageType = '추가공격', Toughness = 30, Multiplier = self.Object.TalentDMG , FlatDMG = 0, DamageName = f'{self.Object.Name}특성확산공격', Multiple = ( 1 + self.Object.UltimateMultiplier) / 2 , Except = self)
                                 self.Object.EnergyGenerate(5, False)
                                 self.Object.ChangeUltStack(-1) # 궁스택 감소 코드
-                                self.Object.Game.ActiveTrigger('캐릭터추가공격발동종료', self.Object, Attacker, None, Except = self)
-                                self.Object.Game.ActiveTrigger('캐릭터추가공격발동종료2', self.Object, Attacker, None)
+                                self.Object.Game.ActiveTrigger('캐릭터추가공격발동종료', self.Object, [Attacker]+neighboringTargets, None, Except = self)
+                                self.Object.Game.ActiveTrigger('캐릭터추가공격발동종료2', self.Object, [Attacker]+neighboringTargets, None)
 
                         elif self.Attacked=='normal':
                             self.Attacked = False
                             self.Object.Game.AppendBattleHistory(f"\n시간 : {self.Object.Game.CurrentTime}, 클라라 반격")
                             if Attacker in self.Object.Game.Enemys:
-                                self.Object.Game.ActiveTrigger('캐릭터추가공격발동시작', self.Object, Attacker, None, Except = self)
+                                self.Object.Game.ActiveTrigger('캐릭터추가공격발동시작', self.Object, [Attacker], None, Except = self)
                                 self.Object.Game.ApplyDamage(Attacker = self.Object, Target = Attacker, Element = self.Object.Element, DamageType = '추가공격', Toughness = 30, Multiplier = self.Object.TalentDMG , FlatDMG = 0, DamageName = f'{self.Object.Name}특성추가공격', Except = self)
                                 self.Object.EnergyGenerate(5, False)
-                                self.Object.Game.ActiveTrigger('캐릭터추가공격발동종료', self.Object, Attacker, None, Except = self)
-                                self.Object.Game.ActiveTrigger('캐릭터추가공격발동종료2', self.Object, Attacker, None, Except = self)
+                                self.Object.Game.ActiveTrigger('캐릭터추가공격발동종료', self.Object, [Attacker], None, Except = self)
+                                self.Object.Game.ActiveTrigger('캐릭터추가공격발동종료2', self.Object, [Attacker], None, Except = self)
                         else:
                             raise ValueError # 오류체크용
                     if random.random() <= 0.35:
