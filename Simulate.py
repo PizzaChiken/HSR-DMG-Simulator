@@ -8,13 +8,14 @@ import random
 import time
 
 
-Simulation_iteration = 30
-MCTS_search_iteration = 300
+Simulation_iteration = 1
+MCTS_search_iteration = 10
 GameTime = 650
+MaximumWave = 3 # 최대 웨이브(리젠 횟수) 이후 게임 종료됨
 PrintTempBuff = False
 UseMultiprocessing = False
 ProcessNum = 10
-SimulateName = f'일반2정예2 클정페나 에이언즈5재 {Simulation_iteration}게임 {MCTS_search_iteration}회 {GameTime}초'
+SimulateName = f'일반2 클정페나 에이언즈5재 {Simulation_iteration}게임 {MCTS_search_iteration}회 {GameTime}초'
 
 if __name__ == '__main__':
     Control = input('직접 컨트롤 하시겠습니까? (y/n): ')
@@ -63,13 +64,13 @@ if __name__ == '__main__':
                         ['부러진용골', []],
                         ['부러진용골', []]])
     
-    Game = HSRBattle(GameTime, Control, PrintTempBuff)
+    Game = HSRBattle(GameTime, MaximumWave, Control, PrintTempBuff)
     Game.AddCharacter([character1, character2, character3, character4])
 
     # 적, ['물리', '화염', '번개', '얼음', '바람', '허수', '양자']
     Game.AddEnemy([
-                (classlist.GetEnemy('허수아비정예'), '허수아비정예-1', ['물리', '화염', '번개', '얼음', '바람', '허수', '양자']),
-                (classlist.GetEnemy('허수아비정예'), '허수아비정예-2', ['물리', '화염', '번개', '얼음', '바람', '허수', '양자']), 
+                (classlist.GetEnemy('허수아비일반'), '허수아비일반-1', ['물리', '화염', '번개', '얼음', '바람', '허수', '양자']),
+                (classlist.GetEnemy('허수아비일반'), '허수아비일반-2', ['물리', '화염', '번개', '얼음', '바람', '허수', '양자']), 
                 ])
     Game.Init()
     Game.GetPossibleAction()

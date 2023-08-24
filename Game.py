@@ -2,12 +2,14 @@ import random
 import copy
 
 class HSRBattle:
-    def __init__(self, SimulateTime, Control, PrintTempBuff):
+    def __init__(self, SimulateTime, MaximumWave, Control, PrintTempBuff):
         self.SimulateTime = SimulateTime
+        self.MaximumWave = MaximumWave
         self.PrintTempBuff = PrintTempBuff
         self.Control = Control
         self.MaxActionGauge = 10000
         self.CurrentTime = 0
+        self.CurrentWave = 0
         self.SkillPoint = 3
         self.Terminal = False
         self.BattleHistory = []
@@ -92,6 +94,7 @@ class HSRBattle:
             Character.Init()
         for Enemy in self.Enemys:
             Enemy.Init()
+        self.AppendBattleHistory(f"게임시작, {self.CurrentWave+1}번째 웨이브\n")
         self.ActiveTrigger('게임시작', None, None, None)
         self.CalcTurn()
 
@@ -201,7 +204,8 @@ class HSRBattle:
             else: 
                 raise ValueError
         self.AppendBattleHistory(f"\n시간 : {self.CurrentTime}, 시뮬레이션 종료, 총합 데미지 : {sum(self.Damage.values())}, 캐릭별 데미지 : {self.Damage}")
-        self.AppendBattleHistory(str(self.TypeDamage))
+        for Character in self.Characters:
+            self.AppendBattleHistory(Character.Name+' : '+str(self.TypeDamage[Character.Name]))
         return None, self.Terminal
     
     def ApplyCharacterAction(self, Action):
@@ -639,8 +643,12 @@ class Regenerate:
         
         if Trigger in ('캐릭터일반공격발동종료', '캐릭터전투스킬발동종료', '캐릭터필살기발동종료', '캐릭터추가공격발동종료', '적턴시작결산'):
             if self.Regenerate == True:
+                    self.Game.CurrentWave += 1
+                    if self.Game.CurrentWave == self.Game.MaximumWave:
+                        self.Game.Terminal = True
+
                     self.Regenerate = False
-                    self.Game.AppendBattleHistory(f"\n시간 : {self.Game.CurrentTime}, 적 전원 사망, 적 리필\n")
+                    self.Game.AppendBattleHistory(f"\n시간 : {self.Game.CurrentTime}, 적 전원 사망, 적 리필, {self.Game.CurrentWave+1}번째 웨이브\n")
                     self.Game.Enemys = []
                     for Enemy in self.Game.Regenerate:
                         enemy = Enemy[0](Enemy[1], Enemy[2])
@@ -652,19 +660,19 @@ class Regenerate:
                     self.Game.TriggerList.remove(self)
                     self.Game.TriggerList.append(Regenerate(self.Game))
 
-                    """
-                    if self.Game.TurnObject != '없음':
-                        self.Game.TurnObject.EndTurn()
+                    
+                   
                     for Character in self.Game.Characters:
                         Character.ActionGauge = 0
                         Character.UltimateActiveCheck = False
                     for Summons in self.Game.Summons:
                         Summons.ActionGauge = 0
+                    if self.Game.TurnObject != '없음':
+                        self.Game.TurnObject.EndTurn()
 
                     self.Game.CurrentTime = self.Game.GetCurrentRoundTime()
                     self.Game.AppendBattleHistory(f"시간 : {self.Game.CurrentTime}, 라운드 시간으로 게임 시간 조정, 모든 행동게이지 0으로 초기화 \n")
                     self.Game.CalcTurn()
-                    """
                     self.Game.ActiveTrigger('적리젠', None, None, None)
 
         
