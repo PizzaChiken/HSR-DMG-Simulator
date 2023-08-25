@@ -116,18 +116,20 @@ class HSRBattle:
             if TimeRemain < MinTime:
                 MinTime = TimeRemain
                 self.TurnObject = Summons
-            
-        self.CurrentTime += MinTime
+        
+
+        self.CurrentTime = min(self.CurrentTime + MinTime, self.SimulateTime)
         if self.CurrentTime >= self.SimulateTime:
             self.Terminal = True
-        for Character in self.Characters:
-            Character.ActionGauge += Character.CalcSpeed() * MinTime
-        for Enemy in self.Enemys:
-            Enemy.ActionGauge += Enemy.CalcSpeed() * MinTime
-        for Summons in self.Summons:
-            Summons.ActionGauge += Summons.CalcSpeed() * MinTime
 
         if self.Terminal == False:
+            for Character in self.Characters:
+                Character.ActionGauge += Character.CalcSpeed() * MinTime
+            for Enemy in self.Enemys:
+                Enemy.ActionGauge += Enemy.CalcSpeed() * MinTime
+            for Summons in self.Summons:
+                Summons.ActionGauge += Summons.CalcSpeed() * MinTime
+                
             if self.TurnObject in self.Summons:
                 self.TurnObject.Action()
                 self.CalcTurn()
@@ -649,28 +651,29 @@ class Regenerate:
 
                     self.Regenerate = False
                     self.Game.AppendBattleHistory(f"\n시간 : {self.Game.CurrentTime}, 적 전원 사망, 적 리필, {self.Game.CurrentWave+1}번째 웨이브\n")
-                    self.Game.Enemys = []
-                    for Enemy in self.Game.Regenerate:
-                        enemy = Enemy[0](Enemy[1], Enemy[2])
-                        self.Game.Enemys.append(enemy)
-                    for Enemy in self.Game.Enemys:
-                        Enemy.AddToGame(self.Game)
-                        Enemy.Init()
-                    
-                    self.Game.TriggerList.remove(self)
-                    self.Game.TriggerList.append(Regenerate(self.Game))
+                    if self.Game.Terminal == False:
+                        self.Game.Enemys = []
+                        for Enemy in self.Game.Regenerate:
+                            enemy = Enemy[0](Enemy[1], Enemy[2])
+                            self.Game.Enemys.append(enemy)
+                        for Enemy in self.Game.Enemys:
+                            Enemy.AddToGame(self.Game)
+                            Enemy.Init()
+                        
+                        self.Game.TriggerList.remove(self)
+                        self.Game.TriggerList.append(Regenerate(self.Game))
 
-                    if self.Game.TurnObject != '없음':
-                        self.Game.TurnObject.EndTurn()
-                    for Character in self.Game.Characters:
-                        Character.ActionGauge = 0
-                        Character.UltimateActiveCheck = False
-                    for Summons in self.Game.Summons:
-                        Summons.ActionGauge = 0
+                        if self.Game.TurnObject != '없음':
+                            self.Game.TurnObject.EndTurn()
+                        for Character in self.Game.Characters:
+                            Character.ActionGauge = 0
+                            Character.UltimateActiveCheck = False
+                        for Summons in self.Game.Summons:
+                            Summons.ActionGauge = 0
 
-                    self.Game.CurrentTime = self.Game.GetCurrentRoundTime()
-                    self.Game.AppendBattleHistory(f"시간 : {self.Game.CurrentTime}, 라운드 시간으로 게임 시간 조정, 모든 행동게이지 0으로 초기화 \n")
-                    self.Game.CalcTurn()
-                    self.Game.ActiveTrigger('적리젠', None, None, None)
+                        self.Game.CurrentTime = self.Game.GetCurrentRoundTime()
+                        self.Game.AppendBattleHistory(f"시간 : {self.Game.CurrentTime}, 라운드 시간으로 게임 시간 조정, 모든 행동게이지 0으로 초기화 \n")
+                        self.Game.CalcTurn()
+                        self.Game.ActiveTrigger('적리젠', None, None, None)
 
         

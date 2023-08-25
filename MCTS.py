@@ -100,7 +100,8 @@ class MonteCarloTreeSearch:
             action = random.choice(state.PossibleAction)
             state.ApplyCharacterAction(action)
             state.GetPossibleAction()
-        result = sum(state.Damage.values())
+        TotalDamage = sum(state.Damage.values())
+        result =  TotalDamage - 0.5 * TotalDamage * (state.CurrentTime/state.SimulateTime)
         return result
 
     def backpropagation(self, node, result):
@@ -124,10 +125,10 @@ def RunOneSimulation(Game, MCTS_search_iteration):
     while Terminal == False:
         Terminal = Simulator.run(MCTS_search_iteration)
 
-    return sum(Simulator.root.state.Damage.values()), Simulator.root.state.Damage.copy(), Simulator.root.state.TypeDamage.copy(), Simulator.root.state.BattleHistory.copy()
+    return sum(Simulator.root.state.Damage.values()), Simulator.root.state.Damage.copy(), Simulator.root.state.TypeDamage.copy(), Simulator.root.state.BattleHistory.copy(), Simulator.root.state.CurrentTime
 
 def RunOneProcess(Dic, Game, MCTS_search_iteration, startTotal, Simulation_iteration):
-    TotalDamage, Damage, TypeDamage, BattleHistory = RunOneSimulation(copy.deepcopy(Game), MCTS_search_iteration)
+    TotalDamage, Damage, TypeDamage, BattleHistory, TimeUse = RunOneSimulation(copy.deepcopy(Game), MCTS_search_iteration)
     Dic['count'] += 1
     count = Dic['count']
     end = time.time()
@@ -136,7 +137,7 @@ def RunOneProcess(Dic, Game, MCTS_search_iteration, startTotal, Simulation_itera
     remainTime = f'{(averageTime * (Simulation_iteration - (count)))//60}분'
     progress = (count) / Simulation_iteration
     update_progress(progress, remainTime, progressTime)
-    return TotalDamage, Damage, TypeDamage, BattleHistory
+    return TotalDamage, Damage, TypeDamage, BattleHistory, TimeUse
 
 
 def RunSimulation(Game, Simulation_iteration, MCTS_search_iteration, Multiprocessing, ProcessNum, SimulationName):
@@ -147,6 +148,7 @@ def RunSimulation(Game, Simulation_iteration, MCTS_search_iteration, Multiproces
     SimulationDamageHistory = []
     SimulationTypeDamageHistory = []
     SimulationBattleHistory = []
+    SimulationTimeUse = []
     update_progress(0, '?', 0)
 
     if Multiprocessing == True:
@@ -162,11 +164,12 @@ def RunSimulation(Game, Simulation_iteration, MCTS_search_iteration, Multiproces
             raise ValueError
         
         for result in results:
-            TotalDamage, Damage, TypeDamage, BattleHistory = result
+            TotalDamage, Damage, TypeDamage, BattleHistory, TimeUse = result
             SimulationTotalDamageHistory.append(TotalDamage)
             SimulationDamageHistory.append(Damage)
             SimulationTypeDamageHistory.append(TypeDamage)
             SimulationBattleHistory.append(BattleHistory)
+            SimulationTimeUse.append(TimeUse)
         
         Pool.close()
         Pool.join()
@@ -174,11 +177,12 @@ def RunSimulation(Game, Simulation_iteration, MCTS_search_iteration, Multiproces
         for _ in range(Simulation_iteration):
             Dic = {}
             Dic['count']=0
-            TotalDamage, Damage, TypeDamage, BattleHistory = RunOneProcess(Dic, Game, MCTS_search_iteration, startTotal, Simulation_iteration)
+            TotalDamage, Damage, TypeDamage, BattleHistory, TimeUse = RunOneProcess(Dic, Game, MCTS_search_iteration, startTotal, Simulation_iteration)
             SimulationTotalDamageHistory.append(TotalDamage)
             SimulationDamageHistory.append(Damage)
             SimulationTypeDamageHistory.append(TypeDamage)
             SimulationBattleHistory.append(BattleHistory)
+            SimulationTimeUse.append(TimeUse)
 
     endTotal = time.time()
     print(f'\n시뮬레이션 완료, 수행시간 : {(endTotal-startTotal)//60}분\n')
@@ -187,6 +191,7 @@ def RunSimulation(Game, Simulation_iteration, MCTS_search_iteration, Multiproces
     MinIndex = np.argmin(SimulationTotalDamageHistory)
     average = np.average(SimulationTotalDamageHistory)
     StandardDeviation = np.std(SimulationTotalDamageHistory)
+    averageTimeUse = np.average(SimulationTimeUse)
 
     averageDamage = SimulationDamageHistory[0].copy()
     averageTypeDamage = SimulationTypeDamageHistory[0].copy()
@@ -203,7 +208,7 @@ def RunSimulation(Game, Simulation_iteration, MCTS_search_iteration, Multiproces
             averageTypeDamage[char][DamageType] = averageTypeDamage[char][DamageType]/Simulation_iteration
     
 
-    print(f'{len(SimulationTotalDamageHistory)}번의 시뮬레이션, 평균 데미지 : {average}, 표준편차 : {StandardDeviation}')
+    print(f'{len(SimulationTotalDamageHistory)}번의 시뮬레이션, 평균 데미지 : {average}, 표준편차 : {StandardDeviation}, 평균 소모 시간 : {averageTimeUse}행동시간')
     print('캐릭터별 평균 데미지 : ', averageDamage)
     print('\n캐릭터별 데미지 종류별 : ')
     for Char in averageTypeDamage:
@@ -212,7 +217,7 @@ def RunSimulation(Game, Simulation_iteration, MCTS_search_iteration, Multiproces
     print(f'최소 데미지 : {SimulationTotalDamageHistory[MinIndex]}, 캐릭터별 딜량 : {SimulationDamageHistory[MinIndex]}, {MinIndex+1}번째 시뮬레이션')
 
     with open(f'{SimulationName}.txt', 'w') as file:
-        file.write(f'{len(SimulationTotalDamageHistory)}번의 시뮬레이션, 평균 데미지 : {average}, 표준편차 : {StandardDeviation}\n')
+        file.write(f'{len(SimulationTotalDamageHistory)}번의 시뮬레이션, 평균 데미지 : {average}, 표준편차 : {StandardDeviation}, 평균 소모 시간 : {averageTimeUse}행동시간\n')
         file.write('캐릭터별 평균 데미지 : '+ str(averageDamage)+'\n')
         file.write('\n캐릭터별 데미지 종류별 : \n')
         for Char in averageTypeDamage:

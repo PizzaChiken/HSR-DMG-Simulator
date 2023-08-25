@@ -219,22 +219,19 @@ class BaseEnemy:
             if self.CurrentHP > MaxHP:
                 self.CurrentHP = MaxHP # 만약 디버프로 인해 최대 HP값이 현재 HP보다 줄어들었다면 현재 HP는 최대 HP값으로 조정된다
                 
-            if self.CurrentHP > MiNRemainDamage:
-                DMGRecord = MiNRemainDamage
-            else:
-                DMGRecord = MiNRemainDamage - self.CurrentHP
+            RealDamage = min(self.CurrentHP, MiNRemainDamage)
             
-            if DMGRecord < 0: 
+            if RealDamage < 0: 
                 raise ValueError
             
             if self.CurrentHP < 0:
                 raise ValueError
-            self.CurrentHP -= MiNRemainDamage
+            self.CurrentHP -= RealDamage
 
-            self.Game.Damage[Attacker.Name] += DMGRecord
-            self.Game.TypeDamage[Attacker.Name][DamageType] += DMGRecord
+            self.Game.Damage[Attacker.Name] += RealDamage
+            self.Game.TypeDamage[Attacker.Name][DamageType] += RealDamage
                 
-            self.Game.AppendBattleHistory(f"시간 : {self.Game.CurrentTime}, 대상 : {self.Name}, 체력 {MiNRemainDamage} 감소, 현재 HP : {self.CurrentHP}, 최대 HP : {MaxHP}, 이전 강인도 {PreviousToughness}, 강인도 {ToughnessDMG} 감소, 현재 강인도 {self.CurrentToughness}")
+            self.Game.AppendBattleHistory(f"시간 : {self.Game.CurrentTime}, 대상 : {self.Name}, 체력 {RealDamage} 감소, 현재 HP : {self.CurrentHP}, 최대 HP : {MaxHP}, 이전 강인도 {PreviousToughness}, 강인도 {ToughnessDMG} 감소, 현재 강인도 {self.CurrentToughness}")
             
             if self.CurrentHP <= 0:
                 self.IsDead = True

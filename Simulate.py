@@ -8,14 +8,14 @@ import random
 import time
 
 
-Simulation_iteration = 1
-MCTS_search_iteration = 10
+Simulation_iteration = 10
+MCTS_search_iteration = 300
 GameTime = 650
 MaximumWave = 3 # 최대 웨이브(리젠 횟수) 이후 게임 종료됨
 PrintTempBuff = False
-UseMultiprocessing = False
-ProcessNum = 10
-SimulateName = f'일반2 클정페나 에이언즈5재 {Simulation_iteration}게임 {MCTS_search_iteration}회 {GameTime}초'
+UseMultiprocessing = True
+ProcessNum = 5
+SimulateName = f'일반2 블브페나 에이언즈5재 {Simulation_iteration}게임 {MCTS_search_iteration}회 {GameTime}초'
 
 if __name__ == '__main__':
     Control = input('직접 컨트롤 하시겠습니까? (y/n): ')
@@ -28,23 +28,23 @@ if __name__ == '__main__':
         
     classlist = ClassList()
     # 캐릭터것
-    character1 = classlist.GetCharacter('클라라')([6,10,10,10], Eidolons=1) # 치확/공%/물피/에충, 속도2, 치확10, 치피12
-    character1.AddLightCone(classlist.GetLightCone('어떤에이언즈의몰락'), SuperImpose=5)
-    character1.AddRelic([['스트리트격투왕', [('고정속도증가', 9.2), ('고정HP증가', 781.20751), ('고정공격력증가', 390.103754), ('고정방어력증가', 38.103754)]],
-                     ['스트리트격투왕', [('HP%증가', 0.07776), ('공격력%증가', 0.94176), ('방어력%증가', 0.0972), ('격파특수효과', 0.11664)]],
-                     ['스트리트격투왕', [('효과명중', 0.07776), ('효과저항', 0.07776), ('치명타확률', 0.67392), ('치명타피해', 0.81648)]],
-                     ['스트리트격투왕', [('에너지회복효율', 0), ('치유량보너스', 0), ('물리속성피해증가', 0.388)]],
-                     ['회전을멈춘살소토', []],
-                     ['회전을멈춘살소토', []]])
+    character1 = classlist.GetCharacter('블레이드')([6,10,10,10], Eidolons=0) # 치피/속도/체%/체%, 속5, 치확9, 치피10
+    character1.AddLightCone(classlist.GetLightCone('닿을수없는저편'), SuperImpose=1)
+    character1.AddRelic([['장수를원하는제자', [('고정속도증가', 41.1), ('고정HP증가', 781.20751), ('고정공격력증가', 390.103754), ('고정방어력증가', 38.103754)]],
+                        ['장수를원하는제자', [('HP%증가', 0.94176), ('공격력%증가', 0.07776), ('방어력%증가', 0.0972), ('격파특수효과', 0.11664)]],
+                        ['장수를원하는제자', [('효과명중', 0.07776), ('효과저항', 0.07776), ('치명타확률', 0.32076), ('치명타피해', 1.34784)]],
+                        ['장수를원하는제자', [('에너지회복효율', 0), ('치유량보너스', 0), ('바람속성피해증가', 0)]],
+                        ['회전을멈춘살소토', []],
+                        ['회전을멈춘살소토', []]])
     
-    character2 = classlist.GetCharacter('정운')([6,10,10,10], Eidolons=6) # 공%/속도/공%/에충, 속도10, 공%10, HP% 6
-    character2.AddLightCone(classlist.GetLightCone('기억속모습'), SuperImpose=5)
-    character2.AddRelic([['들이삭과동행하는거너', [('고정속도증가', 52.6), ('고정HP증가', 781.20751), ('고정공격력증가', 390.103754), ('고정방어력증가', 38.103754)]],
-                        ['들이삭과동행하는거너', [('HP%증가', 0.31104), ('공격력%증가', 1.2528), ('방어력%증가', 0.0972), ('격파특수효과', 0.11664)]],
-                        ['들이삭과동행하는거너', [('효과명중', 0.07776), ('효과저항', 0.07776), ('치명타확률', 0.05832), ('치명타피해', 0.11664)]],
-                        ['들이삭과동행하는거너', [('에너지회복효율', 0.194), ('치유량보너스', 0), ('번개속성피해증가', 0)]],
-                        ['생명의바커공', []],
-                        ['생명의바커공', []]])
+    character2 = classlist.GetCharacter('브로냐')([6,10,10,10], Eidolons=0) # 치피/속도/HP%/에충, HP%10, 방%4, 치피10
+    character2.AddLightCone(classlist.GetLightCone('아직전투는끝나지않았다'), SuperImpose=1)
+    character2.AddRelic([['들이삭과동행하는거너', [('고정속도증가', 29.6), ('고정HP증가', 781.20751), ('고정공격력증가', 390.103754), ('고정방어력증가', 38.103754)]],
+                        ['들이삭과동행하는거너', [('HP%증가', 0.89856), ('공격력%증가', 0.07776), ('방어력%증가', 0.2916), ('격파특수효과', 0.11664)]],
+                        ['장수를원하는제자', [('효과명중', 0.07776), ('효과저항', 0.07776), ('치명타확률', 0.05832), ('치명타피해', 1.34784)]],
+                        ['장수를원하는제자', [('에너지회복효율', 0.194), ('치유량보너스', 0), ('바람속성피해증가', 0)]],
+                        ['불로인의선주', []],
+                        ['불로인의선주', []]])
 
     character3 = classlist.GetCharacter('페라')([6,10,10,10], Eidolons=6) # 효명/속도/얼피/에충 속도10 치확12 치피2
     character3.AddLightCone(classlist.GetLightCone('땀방울처럼빛나는결심'), SuperImpose=5)
