@@ -143,7 +143,7 @@ class ClassList:
             from LightCones.TodayIsAnotherPeacefulDay import TodayIsAnotherPeacefulDay
             return TodayIsAnotherPeacefulDay
         
-        elif LightCone == '연장기호':
+        elif LightCone == '페르마타':
             from LightCones.Fermata import Fermata
             return Fermata
         

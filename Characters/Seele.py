@@ -154,8 +154,8 @@ class Seele(BaseCharacter):
         else:
             raise ValueError
     
-    def EndTurn(self):
-        super().EndTurn()
+    def EndTurn2(self):
+        super().EndTurn2()
         if self.ActiveNormalAttack == True:
             self.ActiveNormalAttack = False
             self.ChangeActionGauge(2000)

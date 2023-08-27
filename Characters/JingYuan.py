@@ -202,9 +202,6 @@ class LightningLord:
     def CalcSpeed(self):
         return self.Speed + 10 * (self.Stack-3)
 
-    def EndTurn(self):
-        pass
-
  
 class JingYuanBattaliaCrush:
     def __init__(self, Object):

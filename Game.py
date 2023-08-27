@@ -171,22 +171,8 @@ class HSRBattle:
                     self.TurnStep = '행동종료'
             
             elif self.TurnStep == '행동종료':
-                if self.TurnObject in self.Characters:# 캐릭터 턴
-                    UltimateOnCharacter = []
-                    for Character in self.Characters: 
-                        if Character.CurrentEnergy >= Character.BaseStat['에너지최대치'] and Character.UltimateActiveCheck == False:
-                            if Character.CheckFrozen() != True and Character.TurnSkip == False:  # 나중에 뜯어고쳐야함 현재 빙결시에만 스킵되는데 얽힘,속박시에도 스킵되어야함
-                                UltimateOnCharacter.append(Character)
-                    if len(UltimateOnCharacter) > 0:
-                        self.GetUltimateAction(UltimateOnCharacter)
-                        return self.PossibleAction, self.Terminal
-
-                self.TurnObject.EndTurn()
-                self.TurnObject = '없음'
-                
+                self.TurnObject.EndTurn1()
                 self.TurnStep = '행동종료후필살기선택'
-                for Character in self.Characters:
-                    Character.UltimateActiveCheck = False
             
             elif self.TurnStep == '행동종료후필살기선택':
                 UltimateOnCharacter = []
@@ -201,10 +187,12 @@ class HSRBattle:
                 for Character in self.Characters:
                     Character.UltimateActiveCheck = False
                 
+                self.TurnObject.EndTurn2()
                 self.CalcTurn()
 
             else: 
                 raise ValueError
+            
         self.AppendBattleHistory(f"\n시간 : {self.CurrentTime}, 시뮬레이션 종료, 총합 데미지 : {sum(self.Damage.values())}, 캐릭별 데미지 : {self.Damage}")
         for Character in self.Characters:
             self.AppendBattleHistory(Character.Name+' : '+str(self.TypeDamage[Character.Name]))
@@ -663,8 +651,7 @@ class Regenerate:
                         self.Game.TriggerList.remove(self)
                         self.Game.TriggerList.append(Regenerate(self.Game))
 
-                        if self.Game.TurnObject != '없음':
-                            self.Game.TurnObject.EndTurn()
+                        self.Game.TurnObject.EndTurn()
                         for Character in self.Game.Characters:
                             Character.ActionGauge = 0
                             Character.UltimateActiveCheck = False

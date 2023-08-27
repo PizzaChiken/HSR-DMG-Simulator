@@ -185,11 +185,13 @@ class BaseCharacter:
         self.ManageDebuff()
         self.Game.ActiveTrigger('캐릭터턴시작결산', self, None, None)
         
-    def EndTurn(self):
+    def EndTurn1(self):
         if self.TurnSkip == True:
             self.ActionGauge = 5000
         else:
             self.ActionGauge = 0
+    
+    def EndTurn2(self):
         self.TurnSkip = False
         self.TargetEnemy = None
         self.CheckBuffDuration('B')
@@ -199,6 +201,10 @@ class BaseCharacter:
         self.Game.AppendBattleHistory(f"객체별 현재 속도       : {[char.Name + ' : ' + str(char.CalcSpeed()) for char in self.Game.Characters] + [Enemy.Name + ' : ' + str(Enemy.CalcSpeed()) for Enemy in self.Game.Enemys] + [Summons.Name + ' : ' + str(Summons.CalcSpeed()) for Summons in self.Game.Summons]}")
         self.Game.AppendBattleHistory(f"객체별 현재 행동게이지 : {[char.Name + ' : ' + str(char.ActionGauge) for char in self.Game.Characters] + [Enemy.Name + ' : ' + str(Enemy.ActionGauge) for Enemy in self.Game.Enemys] + [Summons.Name + ' : ' + str(Summons.ActionGauge) for Summons in self.Game.Summons]} \n")
 
+    def EndTurn(self):
+        self.EndTurn1()
+        self.EndTurn2()
+        
     def GetDamage(self, Attacker, Damage, Element, ToughnessDMG, Type):
         if self.IsDead == False:
             ShieldList = []

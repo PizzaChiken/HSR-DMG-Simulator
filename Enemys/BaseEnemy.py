@@ -167,20 +167,27 @@ class BaseEnemy:
                 self.Game.AppendBattleHistory(f"시간 : {self.Game.CurrentTime}, 대상 : {self.Name} 강인도 회복, 현재 강인도 : {self.CurrentToughness}")
         self.Game.ActiveTrigger('적턴시작결산', self, None, None)
         
-    def EndTurn(self):
+    def EndTurn1(self):
         if self.TurnSkip == True:
             self.ActionGauge = 5000
         else:
             self.ActionGauge = 0
+    
+    def EndTurn2(self):
         self.TurnSkip = False
-        self.TargetCharacter = None
+        self.TargetEnemy = None
         self.CheckBuffDuration('B')
         self.ManageBuff()
-        self.Game.ActiveTrigger('적턴종료', self, None, None)
+        self.Game.ActiveTrigger('캐릭터턴종료', self, None, None)
         self.Game.AppendBattleHistory(f"\n시간 : {self.Game.CurrentTime}, {self.Name} 턴 종료")
         self.Game.AppendBattleHistory(f"객체별 현재 속도       : {[char.Name + ' : ' + str(char.CalcSpeed()) for char in self.Game.Characters] + [Enemy.Name + ' : ' + str(Enemy.CalcSpeed()) for Enemy in self.Game.Enemys] + [Summons.Name + ' : ' + str(Summons.CalcSpeed()) for Summons in self.Game.Summons]}")
         self.Game.AppendBattleHistory(f"객체별 현재 행동게이지 : {[char.Name + ' : ' + str(char.ActionGauge) for char in self.Game.Characters] + [Enemy.Name + ' : ' + str(Enemy.ActionGauge) for Enemy in self.Game.Enemys] + [Summons.Name + ' : ' + str(Summons.ActionGauge) for Summons in self.Game.Summons]} \n")
 
+    def EndTurn(self):
+        self.EndTurn1()
+        self.EndTurn2()
+
+        
     def Action(self):
         pass
 

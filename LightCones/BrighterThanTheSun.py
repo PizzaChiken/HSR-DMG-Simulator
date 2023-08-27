@@ -1,6 +1,5 @@
 class BrighterThanTheSun: 
     def __init__(self, Object, SuperImpose):
-        print('\n\n주의 : 태양보다밝게빛나는것은 테섭 기준으로 작성되었음 (V3) \n\n')
         self.Object = Object
         self.SuperImpose = SuperImpose
         self.Object.BaseStat['기초HP'] += 1058

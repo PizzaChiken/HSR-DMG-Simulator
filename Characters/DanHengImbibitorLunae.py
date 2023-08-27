@@ -6,7 +6,6 @@ import numpy as np
 class DanHengImbibitorLunae(BaseCharacter):
     def __init__(self, SkillLevel, Eidolons):
         super().__init__(SkillLevel, Eidolons)
-        print('\n\n주의 : 단항음월은 테섭 기준으로 작성되었음 (V2) \n\n')
         self.Name = '단항음월'
         self.Element = '허수'
         self.SkillRange = {'일반공격' : '적지정', '전투스킬' : '자신지정', '필살기' : '적지정'} 
@@ -191,10 +190,10 @@ class DanHengImbibitorLunae(BaseCharacter):
                 if i >= 3 :
                     stack = 1
                     for Buff in self.BuffList:
-                        if Buff['설명'] == '단항질타':
+                        if Buff['설명'] == '단항노호':
                             stack = min(Buff['스택']+ 1, 4)
                     duration = 2 if self.Eidolons>=4 else 1
-                    self.Game.ApplyBuff(Attacker = self, Target = self, Buff = {'버프형태' : '스탯', '설명' : '단항질타', '시간타입' : 'B', '체크' : False, '남은턴' : duration, '스택' : stack, '효과' : [('치명타피해', self.BSkillCritBuff * stack)]})
+                    self.Game.ApplyBuff(Attacker = self, Target = self, Buff = {'버프형태' : '스탯', '설명' : '단항노호', '시간타입' : 'B', '체크' : False, '남은턴' : duration, '스택' : stack, '효과' : [('치명타피해', self.BSkillCritBuff * stack)]})
                     for NeighboringTarget in NeighboringTargets:
                         self.Game.ApplyDamage(Attacker = self, Target = NeighboringTarget, Element = self.Element, DamageType = '일반공격', Toughness = 30/2, Multiplier = self.NAEnhanced2SubDMG, FlatDMG = 0, DamageName = f'{self.Name}2단일반확산공격', Multiple = 1/2)
                 self.Game.ApplyDamage(Attacker = self, Target = target[0], Element = self.Element, DamageType = '일반공격', Toughness = 90/5, Multiplier = self.NAEnhanced2MainDMG, FlatDMG = 0, DamageName = f'{self.Name}2단일반메인공격', Multiple = 1/5)
@@ -216,10 +215,10 @@ class DanHengImbibitorLunae(BaseCharacter):
                 if i >= 3 :
                     stack = 1
                     for Buff in self.BuffList:
-                        if Buff['설명'] == '단항질타':
+                        if Buff['설명'] == '단항노호':
                             stack = min(Buff['스택']+ 1, 4)
                     duration = 2 if self.Eidolons>=4 else 1
-                    self.Game.ApplyBuff(Attacker = self, Target = self, Buff = {'버프형태' : '스탯', '설명' : '단항질타', '시간타입' : 'B', '체크' : False, '남은턴' : duration, '스택' : stack, '효과' : [('치명타피해', self.BSkillCritBuff * stack)]})
+                    self.Game.ApplyBuff(Attacker = self, Target = self, Buff = {'버프형태' : '스탯', '설명' : '단항노호', '시간타입' : 'B', '체크' : False, '남은턴' : duration, '스택' : stack, '효과' : [('치명타피해', self.BSkillCritBuff * stack)]})
                     for NeighboringTarget in NeighboringTargets:
                         self.Game.ApplyDamage(Attacker = self, Target = NeighboringTarget, Element = self.Element, DamageType = '일반공격', Toughness = 60/4, Multiplier = self.NAEnhanced3SubDMG, FlatDMG = 0, DamageName = f'{self.Name}3단일반확산공격', Multiple = 1/4)
                 self.Game.ApplyDamage(Attacker = self, Target = target[0], Element = self.Element, DamageType = '일반공격', Toughness = 120/7, Multiplier = self.NAEnhanced3MainDMG, FlatDMG = 0, DamageName = f'{self.Name}3단일반메인공격', Multiple = 1/7)
@@ -296,8 +295,8 @@ class DanHengImbibitorLunae(BaseCharacter):
         else:
             raise ValueError
     
-    def EndTurn(self):
-        super().EndTurn()
+    def EndTurn2(self):
+        super().EndTurn2()
         if any([Buff['설명'] in ('단항긍지') for Buff in self.BuffList]):
             raise ValueError
         else:
@@ -317,7 +316,7 @@ class DanHengIMTrace1:
                         if Debuff['디버프형태'] == '약점부여':
                             WeakList += Debuff['속성']
                     if '허수' in WeakList:
-                        self.Object.TempBuffList.append(('치명타확률', 0.12))
+                        self.Object.TempBuffList.append(('치명타피해', 0.24))
 
 class DanHengIMEidolon6:
     def __init__(self, Object):

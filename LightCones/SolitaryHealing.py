@@ -1,6 +1,5 @@
 class SolitaryHealing: 
     def __init__(self, Object, SuperImpose):
-        print('\n\n주의 : 고독의치유는 테섭 기준으로 작성되었음\n\n')
         self.Object = Object
         self.SuperImpose = SuperImpose
         self.Object.BaseStat['기초HP'] += 1058
