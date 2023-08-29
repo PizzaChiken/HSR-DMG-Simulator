@@ -71,6 +71,9 @@ class ClassList:
             from Characters.Pela import Pela
             return Pela
         
+        elif Character == '경류':
+            from Characters.Jingliu import Jingliu
+            return Jingliu
         else:
             raise ValueError
         
@@ -182,6 +185,9 @@ class ClassList:
         elif LightCone == '땀방울처럼빛나는결심':
             from LightCones.ResolutionShinesAsPearlsOfSweat import ResolutionShinesAsPearlsOfSweat
             return ResolutionShinesAsPearlsOfSweat
+        elif LightCone == '이몸이검이니':
+            from LightCones.IShallBeMyOwnSword import IShallBeMyOwnSword
+            return IShallBeMyOwnSword
         else:
             raise ValueError
     

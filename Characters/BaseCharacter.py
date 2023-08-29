@@ -244,6 +244,7 @@ class BaseCharacter:
         self.CurrentHP -= ConsumedHP
         self.Game.AppendBattleHistory(f"시간 : {self.Game.CurrentTime}, 대상 : {self.Name}, 체력 {ConsumedHP} 소모, 현재 HP : {self.CurrentHP}, 최대 HP : {MaxHP}") 
         self.Game.ActiveTrigger('캐릭터체력소모', Attacker, [self], ConsumedHP)
+        return ConsumedHP
         
         
     def GetHeal(self, Heal):
@@ -275,6 +276,12 @@ class BaseCharacter:
         for debuff in self.DebuffList:
             if debuff['디버프형태'] == '빙결':
                 return True
+            
+    def NAIsPossible(self):
+        return True
+
+    def BattleSkillIsPossible(self):
+        return True
             
 class EntanglementCheck: #피격시 얽힘 중첩을 추가하고 # 스킬 1번에 여러번 피격당해도 1회만 적용
     def __init__(self, Object):

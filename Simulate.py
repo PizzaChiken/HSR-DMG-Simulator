@@ -11,7 +11,7 @@ import time
 Simulation_iteration = 30
 MCTS_search_iteration = 300
 GameTime = 650
-MaximumWave = 3 # 최대 웨이브(리젠 횟수) 이후 게임 종료됨
+MaximumWave = 100 # 최대 웨이브(리젠 횟수) 이후 게임 종료됨
 PrintTempBuff = False
 UseMultiprocessing = True
 ProcessNum = 10
@@ -28,8 +28,8 @@ if __name__ == '__main__':
         
     classlist = ClassList()
     # 캐릭터것
-    character1 = classlist.GetCharacter('단항음월')([6,10,10,10], Eidolons=2) # 치피/속도/허피/공%, 공%8, 치확6, 치피10
-    character1.AddLightCone(classlist.GetLightCone('태양보다밝게빛나는것'), SuperImpose=1)
+    character1 = classlist.GetCharacter('경류')([6,10,10,10], Eidolons=6) # 치피/속도/허피/공%, 공%8, 치확6, 치피10
+    character1.AddLightCone(classlist.GetLightCone('이몸이검이니'), SuperImpose=1)
     character1.AddRelic([['들이삭과동행하는거너', [('고정속도증가', 29.6), ('고정HP증가', 781.20751), ('고정공격력증가', 390.103754), ('고정방어력증가', 38.103754)]],
                         ['들이삭과동행하는거너', [('HP%증가', 0.07776), ('공격력%증가', 0.8208), ('방어력%증가', 0.0972), ('격파특수효과', 0.11664)]],
                         ['들이삭과동행하는거너', [('효과명중', 0.07776), ('효과저항', 0.07776), ('치명타확률', 0.23328), ('치명타피해', 1.34784)]],
@@ -83,6 +83,13 @@ if __name__ == '__main__':
         while Game.Terminal == False:
             for idx in range(len(Game.PossibleAction)):
                 print(idx, Game.PossibleAction[idx])
-            action = int(input('몇번째 행동을 선택하시겠습니까? : '))
+            while True:
+                action = input('몇번째 행동을 선택하시겠습니까? : ')
+                try:
+                    action = int(action)
+                    if action in [num for num in range(len(Game.PossibleAction))]:
+                        break
+                except:
+                    pass
             Game.ApplyCharacterAction(Game.PossibleAction[action])
             Game.GetPossibleAction()

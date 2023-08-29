@@ -238,13 +238,15 @@ class HSRBattle:
         self.PossibleAction = PossibleAction
 
     def GetNormalAction(self, Character):
-        if Character.SkillRange['일반공격'] == '적지정':
-            if Character.TargetEnemy == None:
-                PossibleAction = [{'발동' : True, '시전자' : Character, '타겟' :[TargetEnemy], '스킬' : '일반공격'} for TargetEnemy in self.Enemys]
-            elif Character.TargetEnemy in self.Enemys:
-                PossibleAction = [{'발동' : True, '시전자' : Character, '타겟' :[Character.TargetEnemy], '스킬' : '일반공격'}]
-            else:
-                raise ValueError
+        PossibleAction = []
+        if Character.NAIsPossible() == True:
+            if Character.SkillRange['일반공격'] == '적지정':
+                if Character.TargetEnemy == None:
+                    PossibleAction += [{'발동' : True, '시전자' : Character, '타겟' :[TargetEnemy], '스킬' : '일반공격'} for TargetEnemy in self.Enemys]
+                elif Character.TargetEnemy in self.Enemys:
+                    PossibleAction += [{'발동' : True, '시전자' : Character, '타겟' :[Character.TargetEnemy], '스킬' : '일반공격'}]
+                else:
+                    raise ValueError
         if Character.BattleSkillIsPossible() == True:
             if Character.SkillRange['전투스킬'] == '적전체':
                 PossibleAction += [{'발동' : True, '시전자' : Character, '타겟'  : self.Enemys, '스킬': '전투스킬'}]
@@ -261,10 +263,12 @@ class HSRBattle:
                 PossibleAction += [{'발동' : True, '시전자' : Character, '타겟' : [TargetCharacter], '스킬' : '전투스킬'} for TargetCharacter in self.Characters]
             elif Character.SkillRange['전투스킬'] == '자신지정':
                 PossibleAction += [{'발동' : True, '시전자' : Character, '타겟'  : [Character], '스킬': '전투스킬'}]
+        if len(PossibleAction) == 0 :
+            raise ValueError
         self.PossibleAction = PossibleAction
 
 
-    def ApplyDamage(self, Attacker, Target, Element, DamageType, Toughness, Multiplier, FlatDMG, DamageName, Multiple = 1, Except = None):
+    def ApplyDamage(self, Attacker, Target, Element, DamageType, Toughness, Multiplier, FlatDMG, DamageName, Multiple = 1, AttackerTempBuff = [], TargetTempBuff = [],Except = None):
         '''
         목표 객체에게 가하는 데미지(DoT데미지 제외)를 계산하고 적용하는 함수
 
@@ -278,6 +282,10 @@ class HSRBattle:
         '''
         Attacker.TempBuffList = []
         Target.TempBuffList = []
+        for TempBuffA in AttackerTempBuff:
+            Attacker.TempBuffList.append(TempBuffA)
+        for TempBuffT in TargetTempBuff:
+            Target.TempBuffList.append(TempBuffT)
         self.ActiveTrigger('데미지발동시작', Attacker, [Target], [DamageType, DamageName], Except=Except)
         Attacker.CalcTempStat()
         Target.CalcTempStat()
@@ -312,10 +320,14 @@ class HSRBattle:
         self.ActiveTrigger('데미지발동종료', Attacker, [Target], [DamageType, DamageName, FinalDamage], Except=Except)
         return FinalDamage
     
-    def ApplyBreakDamage(self, Attacker, Target, Element, Multiple = 1, Except=None):
+    def ApplyBreakDamage(self, Attacker, Target, Element, Multiple = 1, AttackerTempBuff = [], TargetTempBuff = [], Except=None):
         #목표 객체에게 가하는 도트 데미지를 계산하고 적용하는 함수, 카프카 때문에 Multiplier 변수 추가됨
         Attacker.TempBuffList = []
         Target.TempBuffList = []
+        for TempBuffA in AttackerTempBuff:
+            Attacker.TempBuffList.append(TempBuffA)
+        for TempBuffT in TargetTempBuff:
+            Target.TempBuffList.append(TempBuffT)
         self.ActiveTrigger('격파데미지발동시작', Attacker, [Target], None, Except=Except)
         Attacker.CalcTempStat()
         Target.CalcTempStat()
@@ -358,11 +370,15 @@ class HSRBattle:
         self.ActiveTrigger('격파데미지발동종료', Attacker, [Target], None, Except=Except)
     
 
-    def ApplyDoTDamage(self, Target, DoT, Multiple = 1, Except=None):
+    def ApplyDoTDamage(self, Target, DoT, Multiple = 1, AttackerTempBuff = [], TargetTempBuff = [], Except=None):
         #목표 객체에게 가하는 도트 데미지를 계산하고 적용하는 함수, 카프카 때문에 Multiple 변수 추가됨
         Attacker = DoT['공격자']
         Attacker.TempBuffList = []
         Target.TempBuffList = []
+        for TempBuffA in AttackerTempBuff:
+            Attacker.TempBuffList.append(TempBuffA)
+        for TempBuffT in TargetTempBuff:
+            Target.TempBuffList.append(TempBuffT)
         self.ActiveTrigger('도트데미지발동시작', Attacker, [Target], [DoT['디버프형태'], DoT['설명']], Except=Except)
         Attacker.CalcTempStat()
         Target.CalcTempStat()
@@ -460,9 +476,11 @@ class HSRBattle:
         self.ActiveTrigger('도트데미지발동종료', DoT['공격자'], [Target], [DoT['디버프형태'], DoT['설명'], FianlDamage], Except=Except)
 
         
-    def ApplyHeal(self, Attacker, Target, Multiplier, FlatHeal, HealName, Multiple = 1, Except=None):
+    def ApplyHeal(self, Attacker, Target, Multiplier, FlatHeal, HealName, Multiple = 1, AttackerTempBuff = [], Except=None):
         # 목표 객체에게 가하는 힐량을 계산하고 적용하는 함수, Target -- 힐량이 적용되는 객체, 목표 객체들의 리스트아님! 단일!
         Attacker.TempBuffList = []
+        for TempBuffA in AttackerTempBuff:
+            Attacker.TempBuffList.append(TempBuffA)
         self.ActiveTrigger('힐발동시작', Attacker, [Target], None, Except=Except)
         Attacker.CalcTempStat()
         
@@ -479,9 +497,11 @@ class HSRBattle:
         self.ActiveTrigger('힐발동종료', Attacker, [Target], [Heal, OverHeal], Except=Except)
 
 
-    def ApplyBuff(self, Attacker, Target, Buff, Except=None):
+    def ApplyBuff(self, Attacker, Target, Buff, AttackerTempBuff = [], Except=None):
         # 목표 객체에게 버프를 적용하는 함수, Target -- 버프가 적용되는 객체, 목표 객체들의 리스트아님! 단일! 
         Attacker.TempBuffList = []
+        for TempBuffA in AttackerTempBuff:
+            Attacker.TempBuffList.append(TempBuffA)
         self.ActiveTrigger('버프발동시작', Attacker, [Target], None, Except=Except)
         Attacker.CalcTempStat()
 
@@ -502,10 +522,14 @@ class HSRBattle:
         self.ActiveTrigger('버프발동종료', Attacker, [Target], [Buff], Except=Except)
 
 
-    def ApplyDebuff(self, Attacker, Target, BaseProbability, Debuff, Except=None):
+    def ApplyDebuff(self, Attacker, Target, BaseProbability, Debuff, AttackerTempBuff = [], TargetTempBuff = [], Except=None):
         # 목표 객체에게의 적중확률을 계산하고 그에 따라 버프를 적용하는 함수, Target -- 디버프가 가해지는 객체, 목표 객체들의 리스트아님! 단일!
         Attacker.TempBuffList = []
         Target.TempBuffList = []
+        for TempBuffA in AttackerTempBuff:
+            Attacker.TempBuffList.append(TempBuffA)
+        for TempBuffT in TargetTempBuff:
+            Target.TempBuffList.append(TempBuffT)
         self.ActiveTrigger('디버프발동시작', Attacker, [Target], None, Except=Except) 
         Attacker.CalcTempStat()
         Target.CalcTempStat()
@@ -651,6 +675,7 @@ class Regenerate:
                         self.Game.TriggerList.remove(self)
                         self.Game.TriggerList.append(Regenerate(self.Game))
 
+                        """
                         self.Game.TurnObject.EndTurn()
                         for Character in self.Game.Characters:
                             Character.ActionGauge = 0
@@ -661,6 +686,7 @@ class Regenerate:
                         self.Game.CurrentTime = self.Game.GetCurrentRoundTime()
                         self.Game.AppendBattleHistory(f"시간 : {self.Game.CurrentTime}, 라운드 시간으로 게임 시간 조정, 모든 행동게이지 0으로 초기화 \n")
                         self.Game.CalcTurn()
+                        """
                         self.Game.ActiveTrigger('적리젠', None, None, None)
 
         
