@@ -5,6 +5,7 @@ import numpy as np
 class Jingliu(BaseCharacter):
     def __init__(self, SkillLevel, Eidolons):
         super().__init__(SkillLevel, Eidolons)
+        print('\n\n주의 : 경류는 테섭 기준으로 작성되었음 (V1) \n\n')
         self.Name = '경류'
         self.Element = '얼음'
         self.SkillRange = {'일반공격' : '적지정', '전투스킬' : '적지정', '필살기' : '적지정'} 

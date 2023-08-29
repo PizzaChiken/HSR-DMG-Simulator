@@ -1,6 +1,7 @@
 import numpy as np
 class IShallBeMyOwnSword: 
     def __init__(self, Object, SuperImpose):
+        print('\n\n주의 : 이몸이검이니는 테섭 기준으로 작성되었음 (V1) \n\n')
         self.Object = Object
         self.SuperImpose = SuperImpose
         self.Object.BaseStat['기초HP'] += 1164
