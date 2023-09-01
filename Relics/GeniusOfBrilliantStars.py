@@ -7,7 +7,7 @@ class GeniusOfBrilliantStars:
     
     def Active(self, Trigger, Attacker, Target, Value):
         if self.SetCount >= 4:
-            if Trigger in ('데미지발동시작', '도트데미지발동시작'):
+            if Trigger in ('데미지발동시작', '도트데미지발동시작', '격파데미지발동시작'):
                 if Attacker.Type == '캐릭터' and Target[0].Type == '적':
                     if Attacker == self.Object:
                         self.Object.TempBuffList.append(('방어력무시', 0.1))

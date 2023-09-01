@@ -11,11 +11,11 @@ import time
 Simulation_iteration = 30
 MCTS_search_iteration = 300
 GameTime = 650
-MaximumWave = 100 # 최대 웨이브(리젠 횟수) 이후 게임 종료됨
+MaximumWave = 3 # 최대 웨이브(리젠 횟수) 이후 게임 종료됨
 PrintTempBuff = False
 UseMultiprocessing = True
 ProcessNum = 10
-SimulateName = f'정예2 담정페나 에이언즈5재 {Simulation_iteration}게임 {MCTS_search_iteration}회 {GameTime}초'
+SimulateName = f'정예2 경정페나 이몸이검이니1재 {Simulation_iteration}게임 {MCTS_search_iteration}회 {GameTime}초'
 
 if __name__ == '__main__':
     Control = input('직접 컨트롤 하시겠습니까? (y/n): ')
@@ -28,14 +28,14 @@ if __name__ == '__main__':
         
     classlist = ClassList()
     # 캐릭터것
-    character1 = classlist.GetCharacter('경류')([6,10,10,10], Eidolons=6) # 치피/속도/허피/공%, 공%8, 치확6, 치피10
+    character1 = classlist.GetCharacter('경류')([6,10,10,10], Eidolons=0) # 치피/속도/허피/공%, 공%8, 치확6, 치피10
     character1.AddLightCone(classlist.GetLightCone('이몸이검이니'), SuperImpose=1)
-    character1.AddRelic([['들이삭과동행하는거너', [('고정속도증가', 29.6), ('고정HP증가', 781.20751), ('고정공격력증가', 390.103754), ('고정방어력증가', 38.103754)]],
-                        ['들이삭과동행하는거너', [('HP%증가', 0.07776), ('공격력%증가', 0.8208), ('방어력%증가', 0.0972), ('격파특수효과', 0.11664)]],
-                        ['들이삭과동행하는거너', [('효과명중', 0.07776), ('효과저항', 0.07776), ('치명타확률', 0.23328), ('치명타피해', 1.34784)]],
-                        ['들이삭과동행하는거너', [('에너지회복효율', 0), ('치유량보너스', 0), ('허수속성피해증가', 0.388)]],
-                        ['우주봉인정거장', []],
-                        ['우주봉인정거장', []]])
+    character1.AddRelic([['혹한밀림의사냥꾼', [('고정속도증가', 29.6), ('고정HP증가', 781.20751), ('고정공격력증가', 390.103754), ('고정방어력증가', 38.103754)]],
+                        ['혹한밀림의사냥꾼', [('HP%증가', 0.07776), ('공격력%증가', 0.8208), ('방어력%증가', 0.0972), ('격파특수효과', 0.11664)]],
+                        ['혹한밀림의사냥꾼', [('효과명중', 0.07776), ('효과저항', 0.07776), ('치명타확률', 0.23328), ('치명타피해', 1.34784)]],
+                        ['혹한밀림의사냥꾼', [('에너지회복효율', 0), ('치유량보너스', 0), ('얼음속성피해증가', 0.388)]],
+                        ['뭇별경기장', []],
+                        ['뭇별경기장', []]])
     
     character2 = classlist.GetCharacter('정운')([6,10,10,10], Eidolons=6) # 공%/속도/공%/에충, 속도10, 공%10, HP% 6
     character2.AddLightCone(classlist.GetLightCone('행성과의만남'), SuperImpose=5)

@@ -195,9 +195,10 @@ class Jingliu(BaseCharacter):
             self.EnergyGenerate(30, Flat = False)
             self.Game.ApplyDamage(Attacker = self, Target = target[0], Element = self.Element, DamageType = '전투스킬', Toughness = 60, Multiplier = self.BSkillDMG, FlatDMG = 0, DamageName = f'{self.Name}일반전투스킬')
             
+            self.ChangeTalentStack(1)
+
             self.Game.ActiveTrigger('캐릭터전투스킬발동종료', self, target, None)
             self.Game.ActiveTrigger('캐릭터전투스킬발동종료2', self, target, None)
-            self.ChangeTalentStack(1)
 
         elif self.Enhance == True:
             self.EnergyGenerate(20, Flat = False)
@@ -220,9 +221,6 @@ class Jingliu(BaseCharacter):
                 self.Game.ApplyDamage(Attacker = self, Target = target[0], Element = self.Element, DamageType = '전투스킬', Toughness = 30, Multiplier = self.BSkillEnhanceSubDMG, FlatDMG = 0, DamageName = f'{self.Name}1돌강화전투스킬확산', AttackerTempBuff = TempBuff, Multiple=0.6)
                 self.Game.ApplyDamage(Attacker = self, Target = target[0], Element = self.Element, DamageType = '전투스킬', Toughness = 30, Multiplier = self.BSkillEnhanceSubDMG, FlatDMG = 0, DamageName = f'{self.Name}1돌강화전투스킬확산', AttackerTempBuff = TempBuff, Multiple=0.6)
 
-            self.Game.ActiveTrigger('캐릭터전투스킬발동종료', self, target, None)
-            self.Game.ActiveTrigger('캐릭터전투스킬발동종료2', self, target, None)
-
             if self.ExtraTurn == True:
                 self.Game.TurnStep = self.SaveTurnStep
                 self.Game.TurnObject = self.SaveTurnObject
@@ -231,6 +229,9 @@ class Jingliu(BaseCharacter):
                 self.SaveTurnObject = None
 
             self.ChangeTalentStack(-1)
+
+            self.Game.ActiveTrigger('캐릭터전투스킬발동종료', self, target, None)
+            self.Game.ActiveTrigger('캐릭터전투스킬발동종료2', self, target, None)
 
         else:
             raise ValueError
@@ -263,9 +264,10 @@ class Jingliu(BaseCharacter):
             self.Game.ApplyDamage(Attacker = self, Target = target[0], Element = self.Element, DamageType = '필살기', Toughness = 60, Multiplier = self.UltimateSubDMG, FlatDMG = 0, DamageName = f'{self.Name}1돌필살기확산공격', AttackerTempBuff = TempBuff, Multiple = 0.6)
             self.Game.ApplyDamage(Attacker = self, Target = target[0], Element = self.Element, DamageType = '필살기', Toughness = 60, Multiplier = self.UltimateSubDMG, FlatDMG = 0, DamageName = f'{self.Name}1돌필살기확산공격', AttackerTempBuff = TempBuff, Multiple = 0.6)
             
+        self.ChangeTalentStack(1)
+        
         self.Game.ActiveTrigger('캐릭터필살기발동종료', self, target, None)
         self.Game.ActiveTrigger('캐릭터필살기발동종료2', self, target, None)
-        self.ChangeTalentStack(1)
 
     def BattleSkillIsPossible(self):
         if self.Game.SkillPoint > 0 and self.Game.SkillPoint <= 5:
@@ -283,4 +285,10 @@ class Jingliu(BaseCharacter):
             return False
         else:
             return True
+
+    def EndTurn2(self):
+        super().EndTurn2()
+        self.ExtraTurn = False
+        self.SaveTurnStep = None
+        self.SaveTurnObject = None
 

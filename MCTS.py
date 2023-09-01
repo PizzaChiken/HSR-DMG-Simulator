@@ -101,7 +101,7 @@ class MonteCarloTreeSearch:
             state.ApplyCharacterAction(action)
             state.GetPossibleAction()
         TotalDamage = sum(state.Damage.values())
-        result =  TotalDamage - 0.5 * TotalDamage * (state.CurrentTime/state.SimulateTime)
+        result =  TotalDamage - 0.5 * TotalDamage * (state.GetCurrentRoundTime()/state.SimulateTime)
         return result
 
     def backpropagation(self, node, result):

@@ -675,7 +675,7 @@ class Regenerate:
                         self.Game.TriggerList.remove(self)
                         self.Game.TriggerList.append(Regenerate(self.Game))
 
-                        """
+                        
                         self.Game.TurnObject.EndTurn()
                         for Character in self.Game.Characters:
                             Character.ActionGauge = 0
@@ -686,7 +686,7 @@ class Regenerate:
                         self.Game.CurrentTime = self.Game.GetCurrentRoundTime()
                         self.Game.AppendBattleHistory(f"시간 : {self.Game.CurrentTime}, 라운드 시간으로 게임 시간 조정, 모든 행동게이지 0으로 초기화 \n")
                         self.Game.CalcTurn()
-                        """
+                        
                         self.Game.ActiveTrigger('적리젠', None, None, None)
 
         
