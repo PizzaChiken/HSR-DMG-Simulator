@@ -1,0 +1,164 @@
+작성시 주의사항
+Trigger 발동중의 모든 Game.Apply~ 와 Activet Trigger는 Except = Self를 붙여야함
+TempBuff를 계산하는 Trigger('데미지발동시작', '버프발동시작' 등) 도중에 또다른 TempBuff를 계산하는 Trigger가 발동되지 않도록 주의
+
+발견된 문제점
+-비술효과 구현되지 않음
+-다단히트 공격시(예 : 웰트E) 중간에 적이 사망하였음에도 남은 타수를 계속 공격하는 문제 -> 사망시 데미지가 기록되지 않도록 막았지만 웰트2돌 같이 타격시 에너지회복 등의 효과는 여전히 적용됨 
+-다단히트 공격시(예 : 제레E) 중간에 적이 격파되어 얽힘상태가 부여되었을때 남은 타수가 얽힘 스택을 증가시켜 2스택으로 시작하는 문제 -> 양자속성 캐릭터의 다단히트 공격은 마지막 타수에 강인도를 몰아넣는 방식으로 해결
+-특정 스탯 비례 버프 적용시 우주정거장과 같은 특정 스탯이 일정 이상일때 적용되는 스탯이 적용되지 않는 문제
+
+SkillRange : '적전체', '적지정', '아군전체', '아군지정', '자신지정'
+multiplier : [체력게수, 공격력계수, 방어력계수]
+
+버프 형태
+{'버프형태' : '스탯', '설명' : '브로냐궁', '시간타입' : 'B', '체크' : False, '남은턴' : 1, '효과' : [(공격력%증가, 0.2), (치명타피해, 0.4)]}
+{'버프형태' : '기타', '설명' : '백로생명', '시간타입' : 'B', '체크' : False, '남은턴' : 2}
+{'버프형태' : '실드', '설명' : '게파드필살기실드', '시간타입' : 'B', '체크' : False, '남은턴' : 3,  '계수' : [0.0, 0.0, 0.3], '고정' : 200} # ApplyBuff 전달값
+{'버프형태' : '실드', '설명' : '게파드필살기실드', '시간타입' : 'B', '체크' : False, '남은턴' : 3,  '계수' : [0.0, 0.0, 0.3], '고정' : 200, '수치' : 2431} # ApplyBuff에서 실드 수치 계산후 적용
+
+디버프 형태
+{'디버프형태' : '스탯', '설명' : '페라방어력감소', '남은턴' : 2, '효과' : [('방어력감소', 0.3)]}
+{'디버프형태' : '약점부여', '설명' : '은랑약점부여', '남은턴' : 3, '속성' : '허수', '효과' : [{}속성저항증가, -0.2]}
+{'디버프형태' : '도발', '설명' : '불척자도발' , '공격자' : Attacker, '남은턴' : 1,}
+{'디버프형태' : '속박', '설명' : '웰트스킬속박'  , '남은턴' : 1, '행동게이지증감' : 3800, '효과' : ['속도%증가', -0.1]}
+{'디버프형태' : '풍화', '설명' : '삼포격파풍화'  , '공격자' : Attacker, '발동타입' : '격파', '남은턴' : 1, '중첩' : 1}     
+{'디버프형태' : '풍화', '설명' : '삼포스킬풍화'  , '공격자' : Attacker, '발동타입' : '스킬', '남은턴' : 1, '중첩' : 1, '계수' : [0.0, 0.8, 0.0]}
+{'디버프형태' : '감전', '설명' : '서벌스킬감전'  , '공격자' : Attacker, '발동타입' : '스킬', '남은턴' : 2, '계수' : [0.0, 0.8, 0.0]} 
+{'디버프형태' : '열상', '설명' : '클라라격파열상', '공격자' : Attacker, '발동타입' : '격파', '남은턴' : 2}
+{'디버프형태' : '열상', '설명' : '루카스킬열상'  , '공격자' : Attacker, '발동타입' : '스킬', '남은턴' : 2, 계수 : 0.24, 최대치계수 : [0.0, 4.06, 0.0]} 
+{'디버프형태' : '연소', '설명' : '히메코격파연소', '공격자' : Attacker, '발동타입' : '격파', '남은턴' : 2}
+{'디버프형태' : '빙결', '설명' : '삼칠격파빙결'  , '공격자' : Attacker, '발동타입' : '격파', '남은턴' : 1}
+{'디버프형태' : '얽힘', '설명' : '은랑격파얽힘'  , '공격자' : Attacker, '발동타입' : '격파', '남은턴' : 1, '중첩' : 1, '행동게이지증감' : 1000}
+
+
+TempStat(CurrentStat + TempBuff) 계산
+    -Game.ApplyDamage 
+    -Game.ApplyBreakDamage 
+    -Game.ApplyDoTDamage 
+    -Game.ApplyDebuff
+    -Game.ApplyHeal 
+    발동시 self.TempBuffList를 초기화하고 계산함
+
+트리거 형태
+class Trigger:
+    def __init__(self, Object):
+        self.Object = Object
+    
+    def Active(self, Trigger, Attacker, Target, Value)
+
+트리거 종류             
+Game.ActiveTrigger (self, Trigger, Attacker, Target, Value)
+"""
+Trigger - 트리거 종류
+Attacker - 트리거 발동한 객체
+Target - 발동 대상 객체의 리스트, [target1, target2, ...] 
+value - 별도의 필요값 전달
+
+# 캐릭터 영역 트리거 발동      
+- trigger = 턴시작,            Attacker = self,     Target = None,              value = None         : 캐릭별 턴 시작시 
+- trigger = 턴시작결산,         Attacker = self,    Target = None,              value = None         : 캐릭별 턴 시작시후 디버프 관리 이후
+- trigger = 턴종료,            Attacker = self,     Target = None,              value = None         : 캐릭별 턴 종료시       
+- trigger = 일반공격발동시작,   Attacker = self,     Target = Target(스킬대상),   value = None     : 캐릭별 일반공격 발동시작시
+- trigger = 일반공격발동종료,   Attacker = self,     Target = Target(스킬대상),   value = None     : 캐릭별 일반공격 발동시종료시
+- trigger = 일반공격발동종료2,   Attacker = self,     Target = Target(스킬대상),   value = None     : 캐릭별 일반공격 발동시종료시
+- trigger = 전투스킬발동시작,   Attacker = self,     Target = Target(스킬대상),   value = None         : 캐릭별 전투스킬 발동시작시    
+- trigger = 전투스킬발동종료,   Attacker = self,     Target = Target(스킬대상),   value = None         : 캐릭별 전투스킬 발동종료시
+- trigger = 전투스킬발동종료2,   Attacker = self,     Target = Target(스킬대상),   value = None         : 캐릭별 전투스킬 발동종료시       
+- trigger = 필살기발동시작,     Attakcer = self,     Target = Target(스킬대상),   value = None         : 캐릭별 필살기 발동시작시
+- trigger = 필살기발동종료,     Attakcer = self,     Target = Target(스킬대상),   value = None         : 캐릭별 필살기 발동종료시
+- trigger = 필살기발동종료2,     Attakcer = self,     Target = Target(스킬대상),   value = None         : 캐릭별 필살기 발동종료시
+- trigger = 추가공격발동시작,    Attacker = self,     Target = Target(스킬대상),   value = None         : 캐릭별 소환수 공격시작시
+- trigger = 추가공격발동종료,    Attacker = self,     Target = Target(스킬대상),   value = None         : 캐릭별 소환수 공격시작시
+- trigger = 추가공격발동종료2,    Attacker = self,     Target = Target(스킬대상),   value = None         : 캐릭별 소환수 공격시작시
+- trigger = 격파됨              Attacker = Attacker,  Target = [self],            value = None        : 적이 격파될시
+- tirgger = 체력소모            Attakcer = Attacker, Target = [self],             value = ConsumedHP         : 체력소모시
+
+# 게임 영역 트리거 발동 - 타겟은 리스트형태로 주어져야하나 Game.Apply~ 함수는 단일 대상이므로 []으로 Target을 감싼다.
+- trigger = 게임시작,              Attacker = None,      Target = None,                value = None         : 게임 시작시 
+- trigger = 데미지발동시작,        Attacker = Attacker,  Target = [Target],            value = [데미지타입, 이름]  : Game.ApplyDamage 발동시
+- trigger = 데미지발동종료,        Attacker = Attacker,  Target = [Target],            value = [데미지타입, 이름, 최종데미지]  : Game.ApplyDamage 발동시
+- trigger = 도트데미지발동시작,    Attacker = Attacker,  Target = [Target],            value = ['풍화', 이름]      :Game.ApplyDoTDamage 발동시
+- trigger = 도트데미지발동종료     Attacker = Attacker,  Target = [Target],            value = ['열상', 이름, 최종데미지]      :Game.ApplyDoTDamage 발동시 
+- trigger = 격파데미지발동시작,    Attacker = Attacker,  Target = [Target],            value = None      :Game.ApplyBreakDamage 발동시
+- trigger = 격파데미지발동종료     Attacker = Attacker,  Target = [Target],            value = None      :Game.ApplyBreakDamage 발동시
+- trigger = 버프발동시작,          Attacker = Attacker,  Target = [Target],            value = None         : Game.ApplyBuff 발동시
+- trigger = 버프발동종료,          Attacker = Attacker,  Target = [Target],            value = None         : Game.ApplyBuff 발동시
+- trigger = 디버프발동시작,        Attacker = Attacker,  Target = [Target],            value = None         : Game.ApplyDebuff 발동시
+- trigger = 디버프적중시작,        Attacker = Attacker,  Target = [Target],            value = None         : Game.ApplyDebuff의 확률계산 이후 적중시
+- trigger = 디버프적중종료,        Attacker = Attacker,  Target = [Target],            value = None         : Game.ApplyDebuff의 확률계산 이후 적중시
+- trigger = 힐발동시작,           Attacker = Attacker,   Target = [Target],            value = None         : Game.ApplyHeal 발동시
+- trigger = 힐발동종료,           Attacker = Attacker,   Target = [Target],            value = [힐량, OverHeal(T/F)] : Game.ApplyHeal 발동시
+- trigger = 아군사망,             Attacker = Attacker,   Target = [Target],            value = 데미지타입  : 아군사망시
+- trigger = 적사망,               Attacker = Attacker,   Target = [Target],            value = 데미지타입  : 적사망시
+- trigger == 적전원사망           Attacker = Attacker,   Target = ['Target]                 value = None         
+- trigger == 적리젠               Attacker = None,       Target = None                value = None
+  
+
+스탯 목록
+'기초HP' : 1125,
+'HP%증가' : 0,
+'고정HP증가' : 0,
+'기초공격력': 620.93,
+'공격력%증가' : 0.06 + 0.06 + 0.04 + 0.08 + 0.04,
+'고정공격력증가' : 0,
+'기초방어력': 509.36,
+'방어력%증가' : 0,
+'고정방어력증가' : 0,
+'방어력무시' : 0,
+'방어력감소' : 0,
+'기초속도' : 102,
+'속도%증가' : 0,
+'고정속도증가' : 0,
+'치명타확률' : 0.05,
+'치명타피해' : 0.5,
+'격파특수효과' : 0,
+'약점격파효율' : 0,
+'치유량보너스' : 0,
+'에너지최대치' : 120,
+'에너지회복효율' : 1,
+'효과명중' : 0,
+'효과저항' : 0.04 + 0.06
+'모든피해증가' : 0,
+'물리속성피해증가' : 0,
+'화염속성피해증가' : 0,
+'얼음속성피해증가' : 0,
+'번개속성피해증가' : 0,
+'바람속성피해증가' : 0,
+'양자속성피해증가' : 0
+'허수속성피해증가' : 0.048 + 0.032 + 0.064,
+'일반공격피해증가' : 0,
+'전투스킬피해증가' : 0,
+'필살기피해증가' : 0,
+'추가공격피해증가' : 0,
+'추가피해피해증가' : 0,
+'지속피해피해증가' : 0,
+'모든속성저항증가' : 0,
+'물리속성저항증가' : 0,
+'화염속성저항증가' : 0,
+'얼음속성저항증가' : 0,
+'번개속성저항증가' : 0,
+'바람속성저항증가' : 0,
+'양자속성저항증가' : 0,
+'허수속성저항증가' : 0,
+'모든속성저항관통' : 0,
+'물리속성저항관통' : 0,
+'화염속성저항관통' : 0,
+'얼음속성저항관통' : 0,
+'번개속성저항관통' : 0,
+'바람속성저항관통' : 0,
+'양자속성저항관통' : 0,
+'허수속성저항관통' : 0,
+'열상저항' : 0,
+'연소저항' : 0,
+'감전저항' : 0,
+'풍화저항' : 0,
+'빙결저항' : 0,
+'속박저항' : 0,
+'얽힘저항' : 0,
+'도발저항' : 0,
+'받는피해증가' : 0,
+'받는지속피해증가' : 0
+'기초도발' : 100,
+'도발%증가' : 0,
+'실드%증가' : 0
